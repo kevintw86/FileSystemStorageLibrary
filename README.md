@@ -1,5 +1,6 @@
 # FileSystemStorageLibrary
 C# .Net Core 3.1 library that allows to Save/Load classes to/from a file system with encryption of sensitive data, without defining any passwords or keys.
+Encryption of sensitive data is performed on object itself and its childs recursively.
 
 Usage example:
 
