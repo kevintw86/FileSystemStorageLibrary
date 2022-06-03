@@ -20,6 +20,11 @@ namespace FileSystemStorageLibrary.Services
 
         #endregion
 
+        /// <summary>
+        /// Build the instance of <see cref="FileSystemStorage"/> with the instance of <see cref="EncryptorAES"/>, or create your own class which implements <see cref="IEncryptor"/>, that stands for encryption logic
+        /// </summary>
+        /// <param name="encryptor">IEncryptor, that does encryption logic. May use the instance of <see cref="EncryptorAES"/>.</param>
+        /// <param name="loggerService">ILoggerService that is used to log save/load errors. May be null</param>
         public FileSystemStorage(IEncryptor encryptor, ILoggerService loggerService = null)
         {
             this.Encryptor = encryptor;
@@ -28,6 +33,14 @@ namespace FileSystemStorageLibrary.Services
 
         #region Public methods
 
+        /// <summary>
+        /// Saves class instance 'obj' to a path, defined in 'filePath'. All the fields and properties defined in 'propertiesOrFieldNamesToCipher' param will be found in 'obj' itself and its child classes recursively and encrypted with the logic implemented by the <see cref="FileSystemStorage.Encryptor"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of class to save</typeparam>
+        /// <param name="obj">The instance of a class to save</param>
+        /// <param name="filePath">Path to save a file</param>
+        /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
+        /// <remarks>Please be aware that fields and properties of the 'obj' and its childs defined in 'propertiesOrFieldNamesToCipher' will stay ENCRYPTED after save.</remarks>
         public void SaveData<T>(T obj, string filePath, params string[] propertiesOrFieldNamesToCipher) where T : class
         {
             try
@@ -44,6 +57,14 @@ namespace FileSystemStorageLibrary.Services
             }
         }
 
+        /// <summary>
+        /// Saves class instance 'obj' to a path, defined in 'filePath'. All the fields and properties defined in 'propertiesOrFieldNamesToCipher' param will be found in 'obj' itself and its child classes recursively and encrypted with the logic implemented by the <see cref="FileSystemStorage.Encryptor"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of class to save</typeparam>
+        /// <param name="obj">The instance of a class to save</param>
+        /// <param name="filePath">Path to save a file</param>
+        /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
+        /// <remarks>Please be aware that fields and properties of the 'obj' and its childs defined in 'propertiesOrFieldNamesToCipher' will stay ENCRYPTED after save.</remarks>
         public async Task SaveDataAsync<T>(T obj, string filePath, params string[] propertiesOrFieldNamesToCipher) where T : class
         {
             try
@@ -60,6 +81,13 @@ namespace FileSystemStorageLibrary.Services
             }
         }
 
+        /// <summary>
+        /// Loads class instance 'obj' from path, defined in 'filePath'. All the fields and properties defined in 'propertiesOrFieldNamesToCipher' param will be found in 'obj' itself and its child classes recursively and decrypted with the logic implemented by the <see cref="FileSystemStorage.Encryptor"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of class to save</typeparam>
+        /// <param name="filePath">Path to a file</param>
+        /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
+        /// <returns>Class instance <see cref="T"/>, loaded and encrypted properly</returns>
         public T LoadData<T>(string filePath, params string[] propertiesOrFieldNamesToUnCipher) where T : class
         {
             if (!File.Exists(filePath))
@@ -80,6 +108,13 @@ namespace FileSystemStorageLibrary.Services
             return default;
         }
 
+        /// <summary>
+        /// Loads class instance 'obj' from path, defined in 'filePath'. All the fields and properties defined in 'propertiesOrFieldNamesToCipher' param will be found in 'obj' itself and its child classes recursively and decrypted with the logic implemented by the <see cref="FileSystemStorage.Encryptor"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of class to save</typeparam>
+        /// <param name="filePath">Path to a file</param>
+        /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
+        /// <returns>Class instance <see cref="T"/>, loaded and encrypted properly</returns>
         public async Task<T> LoadDataAsync<T>(string filePath, params string[] propertiesOrFieldNamesToUnCipher) where T : class
         {
             if (!File.Exists(filePath))
