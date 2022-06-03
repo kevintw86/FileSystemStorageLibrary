@@ -5,7 +5,8 @@ namespace FileSystemStorageLibrary.Interfaces
 {
     public interface ILoggerService : IDisposable
     {
-        Task Log(string msg);
+        Task LogAsync(string msg);
+        void Log(string msg);
     }
 }
 
