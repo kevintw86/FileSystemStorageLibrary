@@ -17,15 +17,19 @@ namespace FileSystemStorageLibrary.Services
 
         private IEncryptor Encryptor;
         private ILoggerService LoggerService;
+        public static JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+        };
 
-        #endregion
+    #endregion
 
-        /// <summary>
-        /// Build the instance of <see cref="FileSystemStorage"/> with the instance of <see cref="EncryptorAES"/>, or create your own class which implements <see cref="IEncryptor"/>, that stands for encryption logic
-        /// </summary>
-        /// <param name="encryptor">IEncryptor, that does encryption logic. May use the instance of <see cref="EncryptorAES"/>.</param>
-        /// <param name="loggerService">ILoggerService that is used to log save/load errors. May be null</param>
-        public FileSystemStorage(IEncryptor encryptor, ILoggerService loggerService = null)
+    /// <summary>
+    /// Build the instance of <see cref="FileSystemStorage"/> with the instance of <see cref="EncryptorAES"/>, or create your own class which implements <see cref="IEncryptor"/>, that stands for encryption logic
+    /// </summary>
+    /// <param name="encryptor">IEncryptor, that does encryption logic. May use the instance of <see cref="EncryptorAES"/>.</param>
+    /// <param name="loggerService">ILoggerService that is used to log save/load errors. May be null</param>
+    public FileSystemStorage(IEncryptor encryptor, ILoggerService loggerService = null)
         {
             this.Encryptor = encryptor;
             this.LoggerService = loggerService;
@@ -46,7 +50,7 @@ namespace FileSystemStorageLibrary.Services
             try
             {
                 var emailCredentialsCiphered = CipherData(obj, propertiesOrFieldNamesToCipher);
-                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered);
+                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered, JsonSerializerSettings);
 
                 File.WriteAllText(filePath, emailCredentialsCipheredSerialized, Encoding.UTF8);
             }
@@ -70,7 +74,7 @@ namespace FileSystemStorageLibrary.Services
             try
             {
                 var emailCredentialsCiphered = CipherData(obj, propertiesOrFieldNamesToCipher);
-                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered);
+                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered, JsonSerializerSettings);
 
                 await File.WriteAllTextAsync(filePath, emailCredentialsCipheredSerialized, Encoding.UTF8);
             }
@@ -96,7 +100,7 @@ namespace FileSystemStorageLibrary.Services
             try
             {
                 string emailCredentialsCiphered = File.ReadAllText(filePath, Encoding.UTF8);
-                T emailCredentialsCipheredDeserialized = JsonConvert.DeserializeObject<T>(emailCredentialsCiphered);
+                T emailCredentialsCipheredDeserialized = JsonConvert.DeserializeObject<T>(emailCredentialsCiphered, JsonSerializerSettings);
 
                 return UnCipherData(emailCredentialsCipheredDeserialized, propertiesOrFieldNamesToUnCipher);
             }
@@ -123,7 +127,7 @@ namespace FileSystemStorageLibrary.Services
             try
             {
                 string emailCredentialsCiphered = await File.ReadAllTextAsync(filePath, Encoding.UTF8);
-                T emailCredentialsCipheredDeserialized = JsonConvert.DeserializeObject<T>(emailCredentialsCiphered);
+                T emailCredentialsCipheredDeserialized = JsonConvert.DeserializeObject<T>(emailCredentialsCiphered, JsonSerializerSettings);
 
                 return UnCipherData(emailCredentialsCipheredDeserialized, propertiesOrFieldNamesToUnCipher);
             }
@@ -157,6 +161,9 @@ namespace FileSystemStorageLibrary.Services
         private void CipherObject<T>(ref T obj, IEnumerable<string> propertiesOrFieldNamesToCipher)
         {
             if (obj == null)
+                return;
+
+            if (propertiesOrFieldNamesToCipher == null || !propertiesOrFieldNamesToCipher.Any(x => !string.IsNullOrWhiteSpace(x)))
                 return;
 
             FieldInfo[] fieldInfos = obj.GetType().GetFields();
@@ -235,6 +242,9 @@ namespace FileSystemStorageLibrary.Services
         private void UnCipherObject<T>(ref T obj, IEnumerable<string> propertiesOrFieldNamesToUnCipher)
         {
             if (obj == null)
+                return;
+
+            if (propertiesOrFieldNamesToUnCipher == null || !propertiesOrFieldNamesToUnCipher.Any(x => !string.IsNullOrWhiteSpace(x)))
                 return;
 
             FieldInfo[] fieldInfos = obj.GetType().GetFields();
