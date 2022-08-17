@@ -9,7 +9,13 @@ namespace FileSystemStorageLibrary.Services
 {
     public class EncryptorAES : IEncryptor
     {
+        #region Fields
+
         private static Random random = new Random();
+
+        #endregion
+
+        #region Public methods
 
         public string RandomLetter(int length)
         {
@@ -89,6 +95,10 @@ namespace FileSystemStorageLibrary.Services
             return cipherText;
         }
 
+        #endregion
+
+        #region Private methods
+
         private string GetCipherText(string cipherText, out string passPhrase)
         {
             string leadingLetter = cipherText.ToArray()[0].ToString();
@@ -99,9 +109,15 @@ namespace FileSystemStorageLibrary.Services
             return cipherTextWithoutLeadingLetter.Substring(0, leadingIndex) + cipherTextWithoutLeadingLetter[(leadingIndex + 16)..];
         }
 
+        #endregion
+
+        #region IDisposable
+
         public virtual void Dispose()
         {
             random = null;
         }
+
+        #endregion
     }
 }

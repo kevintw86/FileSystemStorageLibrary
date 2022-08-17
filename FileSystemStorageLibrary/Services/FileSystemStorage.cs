@@ -24,12 +24,12 @@ namespace FileSystemStorageLibrary.Services
 
     #endregion
 
-    /// <summary>
-    /// Build the instance of <see cref="FileSystemStorage"/> with the instance of <see cref="EncryptorAES"/>, or create your own class which implements <see cref="IEncryptor"/>, that stands for encryption logic
-    /// </summary>
-    /// <param name="encryptor">IEncryptor, that does encryption logic. May use the instance of <see cref="EncryptorAES"/>.</param>
-    /// <param name="loggerService">ILoggerService that is used to log save/load errors. May be null</param>
-    public FileSystemStorage(IEncryptor encryptor, ILoggerService loggerService = null)
+        /// <summary>
+        /// Build the instance of <see cref="FileSystemStorage"/> with the instance of <see cref="EncryptorAES"/>, or create your own class which implements <see cref="IEncryptor"/>, that stands for encryption logic
+        /// </summary>
+        /// <param name="encryptor">IEncryptor, that does encryption logic. May use the instance of <see cref="EncryptorAES"/>.</param>
+        /// <param name="loggerService">ILoggerService that is used to log save/load errors. May be null</param>
+        public FileSystemStorage(IEncryptor encryptor, ILoggerService loggerService = null)
         {
             this.Encryptor = encryptor;
             this.LoggerService = loggerService;
@@ -45,14 +45,18 @@ namespace FileSystemStorageLibrary.Services
         /// <param name="filePath">Path to save a file</param>
         /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
         /// <remarks>Please be aware that fields and properties of the 'obj' and its childs defined in 'propertiesOrFieldNamesToCipher' will stay ENCRYPTED after save.</remarks>
+        /// <exception cref="PathTooLongException"/>
+        /// <exception cref="IOException"/>
+        /// <exception cref="UnauthorizedAccessException"/>
+        /// <exception cref="System.Security.SecurityException"/>
         public void SaveData<T>(T obj, string filePath, params string[] propertiesOrFieldNamesToCipher) where T : class
         {
             try
             {
-                var emailCredentialsCiphered = CipherData(obj, propertiesOrFieldNamesToCipher);
-                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered, JsonSerializerSettings);
+                var dataEncrypted = CipherData(obj, propertiesOrFieldNamesToCipher);
+                var dataEncryptedSerialized = JsonConvert.SerializeObject(dataEncrypted, JsonSerializerSettings);
 
-                File.WriteAllText(filePath, emailCredentialsCipheredSerialized, Encoding.UTF8);
+                File.WriteAllText(filePath, dataEncryptedSerialized, Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -69,14 +73,18 @@ namespace FileSystemStorageLibrary.Services
         /// <param name="filePath">Path to save a file</param>
         /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
         /// <remarks>Please be aware that fields and properties of the 'obj' and its childs defined in 'propertiesOrFieldNamesToCipher' will stay ENCRYPTED after save.</remarks>
+        /// <exception cref="PathTooLongException"/>
+        /// <exception cref="IOException"/>
+        /// <exception cref="UnauthorizedAccessException"/>
+        /// <exception cref="System.Security.SecurityException"/>
         public async Task SaveDataAsync<T>(T obj, string filePath, params string[] propertiesOrFieldNamesToCipher) where T : class
         {
             try
             {
-                var emailCredentialsCiphered = CipherData(obj, propertiesOrFieldNamesToCipher);
-                var emailCredentialsCipheredSerialized = JsonConvert.SerializeObject(emailCredentialsCiphered, JsonSerializerSettings);
+                var dataEncrypted = CipherData(obj, propertiesOrFieldNamesToCipher);
+                var dataEncryptedSerialized = JsonConvert.SerializeObject(dataEncrypted, JsonSerializerSettings);
 
-                await File.WriteAllTextAsync(filePath, emailCredentialsCipheredSerialized, Encoding.UTF8);
+                await File.WriteAllTextAsync(filePath, dataEncryptedSerialized, Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -92,6 +100,10 @@ namespace FileSystemStorageLibrary.Services
         /// <param name="filePath">Path to a file</param>
         /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
         /// <returns>Class instance <see cref="T"/>, loaded and encrypted properly</returns>
+        /// <exception cref="PathTooLongException"/>
+        /// <exception cref="IOException"/>
+        /// <exception cref="UnauthorizedAccessException"/>
+        /// <exception cref="System.Security.SecurityException"/>
         public T LoadData<T>(string filePath, params string[] propertiesOrFieldNamesToUnCipher) where T : class
         {
             if (!File.Exists(filePath))
@@ -119,6 +131,10 @@ namespace FileSystemStorageLibrary.Services
         /// <param name="filePath">Path to a file</param>
         /// <param name="propertiesOrFieldNamesToCipher">field or properties names to encrypt</param>
         /// <returns>Class instance <see cref="T"/>, loaded and encrypted properly</returns>
+        /// <exception cref="PathTooLongException"/>
+        /// <exception cref="IOException"/>
+        /// <exception cref="UnauthorizedAccessException"/>
+        /// <exception cref="System.Security.SecurityException"/>
         public async Task<T> LoadDataAsync<T>(string filePath, params string[] propertiesOrFieldNamesToUnCipher) where T : class
         {
             if (!File.Exists(filePath))
